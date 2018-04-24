@@ -19,7 +19,12 @@ sourceSets {
     }
 }
 
-task ktest(type: Exec, dependsOn: 'build') {
+task ktest(type: Exec, dependsOn: 'jar') {
     executable "java"
     args "-cp", "junit-3.8.2.jar:kalah.jar:build/libs/jfan082_softeng701_a3.jar", "junit.textui.TestRunner", "kalah.test.TestKalah"
 }
+
+// task krun(type: Exec, dependsOn: 'jar') {
+//     executable "java"
+//     args "-cp", "junit-3.8.2.jar:kalah.jar:build/libs/jfan082_softeng701_a3.jar", "kalah.Kalah.class"
+// }
