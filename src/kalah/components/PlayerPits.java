@@ -61,4 +61,37 @@ public class PlayerPits {
     public Store getStore() {
         return store;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder("| ");
+        s.append(store.toString());
+
+        for (int i = 0; i < pits.size(); i++) {
+            s.append(" | ");
+            s.append(String.format("%d[ ", i + 1));
+            s.append(pits.get(i).toString());
+            s.append("]");
+        }
+        
+        s.append(" |");
+
+        return s.toString();
+    }
+
+    public String toStringReversed() {
+        StringBuilder s = new StringBuilder("| ");
+        
+        for (int i = pits.size() - 1; i <= 0; i--) {
+            s.append(String.format("%d[ ", i + 1));
+            s.append(pits.get(i).toString());
+            s.append("]");
+            s.append(" | ");
+        }
+
+        s.append(store.toString());
+        s.append(" |");
+
+        return s.toString();
+    }
 }

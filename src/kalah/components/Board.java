@@ -79,4 +79,30 @@ public class Board {
     public boolean arePlayerHousesEmpty(int player) {
         return playerPits.get(player).areHousesEmpty();
     }
+
+    @Override
+    public String toString() {
+        // io.println("+----+-------+-------+-------+-------+-------+-------+----+");
+        // io.println("| P2 | 6[ 4] | 5[ 4] | 4[ 4] | 3[ 4] | 2[ 4] | 1[ 4] |  0 |");
+        // io.println("|    |-------+-------+-------+-------+-------+-------|    |");
+        // io.println("|  0 | 1[ 4] | 2[ 4] | 3[ 4] | 4[ 4] | 5[ 4] | 6[ 4] | P1 |");
+        // io.println("+----+-------+-------+-------+-------+-------+-------+----+");
+        StringBuilder s = new StringBuilder("+----+-------+-------+-------+-------+-------+-------+----+");
+        s.append(System.lineSeparator());
+        
+        s.append("| P2 ");
+        s.append(playerPits.get(0).toStringReversed());
+        s.append(System.lineSeparator());
+
+        s.append("|    |-------+-------+-------+-------+-------+-------|    |");
+        s.append(System.lineSeparator());
+
+        s.append(playerPits.get(1).toString());
+        s.append(" P1 |");
+        s.append(System.lineSeparator());
+
+        s.append("+----+-------+-------+-------+-------+-------+-------+----+");
+
+        return s.toString();
+    }
 }

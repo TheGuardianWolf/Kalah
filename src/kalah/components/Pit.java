@@ -1,8 +1,8 @@
 package kalah.components;
 
 public class Pit {
-    private int seeds;
-    private int owner;
+    protected int seeds;
+    protected int owner;
 
     Pit(int seeds/*, int owner*/) {
         this.seeds = seeds;
@@ -34,5 +34,10 @@ public class Pit {
 
     public void clearSeeds() {
         seeds = 0;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%2d", seeds);
     }
 }

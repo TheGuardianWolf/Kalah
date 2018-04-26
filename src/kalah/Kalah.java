@@ -1,11 +1,11 @@
 package kalah;
 
+import java.security.InvalidParameterException;
+
 import com.qualitascorpus.testsupport.IO;
 import com.qualitascorpus.testsupport.MockIO;
 
-import kalah.components.Board;
 import kalah.components.Game;
-import kalah.components.Player;
 
 /**
  * This class is the starting point for a Kalah implementation using
@@ -20,7 +20,7 @@ public class Kalah {
 		Game game = new Game(2, 6, 4);
 
 		while (true) {
-			io.println(game.toString());
+			io.println(game.boardString());
 
 			String userInput = io.readFromKeyboard(String.format("Player %d's turn - Specify house number or 'q' to quit: ", game.getPlayerTurn()));
 
@@ -28,7 +28,14 @@ public class Kalah {
 				break;
 			}
 
-			game.takeTurn(userInput);
+			try {
+				game.takeTurn(userInput);
+			} catch (InvalidParameterException e) {
+				io.println("House is empty");
+			} catch (NumberFormatException e) {
+				io.println("Not a valid house");
+			}
+			
 
 			// io.println(result);
 		}
