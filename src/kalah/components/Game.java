@@ -1,5 +1,9 @@
 package kalah.components;
 
+import java.security.InvalidKeyException;
+import java.security.InvalidParameterException;
+import java.util.ArrayList;
+
 public class Game {
     private int playerTurn = 0;
     private int numberOfPlayers;
@@ -11,6 +15,8 @@ public class Game {
         this.numberOfPlayers = players;
         this.playerHouses = playerHouses;
         this.startingSeeds = startingSeeds;
+
+        newGame();
     }
 
     public void newGame() {
@@ -18,27 +24,19 @@ public class Game {
     }
 
     public void takeTurn(String userInput) {
-        // if (board.arePlayerHousesEmpty(playerTurn)) {
-        //     throw new
-        // }
-
-        int houseNumber = Integer.parseInt(userInput);
+        int houseNumber = Integer.parseInt(userInput) - 1;
         Pit lastSown = board.sow(playerTurn, houseNumber);
 
-        boolean nextPlayer = true;
-
         if (!Store.class.isInstance(lastSown)) {
-            if (lastSown.getSeeds() == 1 && House.class.isInstance(lastSown)) {
-                nextPlayer = nextPlayer && board.captureOpposite((House) lastSown);
+            if (lastSown.getSeeds() == 1 && board.getPlayerPit(playerTurn).ownsPit(lastSown) && House.class.isInstance(lastSown)) {
+                board.capture((House) lastSown);
             }
-        }
-        else {
-            nextPlayer = false;
-        }
-
-        if (nextPlayer) {
             playerTurn = (playerTurn + 1) % numberOfPlayers;
         }
+    }
+
+    public boolean hasTurn(int player) {
+        return !board.arePlayerHousesEmpty(playerTurn);
     }
 
     public int getPlayerTurn() {
@@ -47,5 +45,27 @@ public class Game {
 
     public String boardString() {
         return board.toString();
+    }
+
+    public String scoreString() {
+        return board.scoreString();
+    }
+
+    public int getHighestScorePlayer() {
+        int iMax = 0;
+        int max = 0;
+
+        for (int i = 0; i < numberOfPlayers; i++) {
+            int playerScore = board.getPlayerPit(i).seedSum();
+            if (playerScore > max) {
+                max = playerScore;
+                iMax = i;
+            }
+            else if (playerScore == max) {
+                return -1;
+            }
+        }
+
+        return iMax;
     }
 }

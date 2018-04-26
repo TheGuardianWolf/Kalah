@@ -9,9 +9,9 @@ public class Pit {
         // this.owner = owner;
     }
 
-    public int getOwner() {
-        return owner;
-    }
+//    public int getOwner() {
+//        return owner;
+//    }
 
     public int getSeeds() {
         return seeds;

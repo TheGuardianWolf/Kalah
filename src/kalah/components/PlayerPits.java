@@ -9,11 +9,11 @@ public class PlayerPits {
 
     public PlayerPits(int numberOfHouses, int startingSeeds) {
         for (int i = 0; i < numberOfHouses; i++) {
-            pits.add(new House(startingSeeds));
+            houses.add(new House(startingSeeds));
         }
         store = new Store();
 
-        pits.addAll(pits);
+        pits.addAll(houses);
         pits.add(store);
     }
 
@@ -26,8 +26,8 @@ public class PlayerPits {
     }
 
     public boolean areHousesEmpty() {
-        for (int i = 0; i < houses.size(); i++) {
-            if (houses.get(i).getSeeds() != 0) {
+        for (House house : houses) {
+            if (house.getSeeds() != 0) {
                 return false;
             }
         }
@@ -65,16 +65,18 @@ public class PlayerPits {
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder("| ");
-        s.append(store.toString());
 
-        for (int i = 0; i < pits.size(); i++) {
-            s.append(" | ");
-            s.append(String.format("%d[ ", i + 1));
-            s.append(pits.get(i).toString());
+        for (int i = 0; i < houses.size(); i++) {
+            s.append(String.format("%d[", i + 1));
+            s.append(houses.get(i).toString());
             s.append("]");
+            if (i != houses.size() - 1) {
+                s.append(" | ");
+            }
+            else {
+                s.append(" |");
+            }
         }
-        
-        s.append(" |");
 
         return s.toString();
     }
@@ -82,15 +84,18 @@ public class PlayerPits {
     public String toStringReversed() {
         StringBuilder s = new StringBuilder("| ");
         
-        for (int i = pits.size() - 1; i <= 0; i--) {
-            s.append(String.format("%d[ ", i + 1));
-            s.append(pits.get(i).toString());
+        for (int i = houses.size() - 1; i >= 0; i--) {
+            s.append(String.format("%d[", i + 1));
+            s.append(houses.get(i).toString());
             s.append("]");
-            s.append(" | ");
-        }
 
-        s.append(store.toString());
-        s.append(" |");
+            if (i != 0) {
+                s.append(" | ");
+            }
+            else {
+                s.append(" |");
+            }
+        }
 
         return s.toString();
     }

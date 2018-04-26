@@ -7,14 +7,18 @@
 
 apply plugin: 'application'
 
-// dependencies {
-//     compileClassPath files('junit-3.8.2.jar', 'kalah.jar')
-// }
+repositories {
+    mavenCentral()
+}
 
 def externalClasspath = files('junit-3.8.2.jar', 'kalah.jar')
 
 dependencies {
     compile externalClasspath
+}
+
+test {
+    useJUnitPlatform()
 }
 
 sourceSets {
