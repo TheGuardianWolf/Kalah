@@ -2,9 +2,15 @@ package kalah.components;
 
 public class Pit {
     private int seeds;
-    
-    Pit(int seeds) {
+    private int owner;
+
+    Pit(int seeds/*, int owner*/) {
         this.seeds = seeds;
+        // this.owner = owner;
+    }
+
+    public int getOwner() {
+        return owner;
     }
 
     public int getSeeds() {

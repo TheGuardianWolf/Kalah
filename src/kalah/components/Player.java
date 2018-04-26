@@ -1,7 +1,13 @@
 package kalah.components;
 
 public class Player {
-    public Player() {
+    private int playerNumber;
 
+    public Player(int number) {
+        playerNumber = number;
+    }
+
+    public int getPlayerNumber() {
+        return playerNumber;
     }
 }
