@@ -5,7 +5,7 @@
  * Learn how to create Gradle builds at https://guides.gradle.org/creating-new-gradle-builds/
  */
 
-apply plugin: 'java'
+apply plugin: 'application'
 
 // dependencies {
 //     compileClassPath files('junit-3.8.2.jar', 'kalah.jar')
@@ -13,24 +13,22 @@ apply plugin: 'java'
 
 def externalClasspath = files('junit-3.8.2.jar', 'kalah.jar')
 
+dependencies {
+    compile externalClasspath
+}
+
 sourceSets {
     main {
         java {
             srcDirs = ['src']
         }
-        compileClasspath += externalClasspath
-        runtimeClasspath += externalClasspath
     }
 }
+
+mainClassName = "kalah.Kalah"
 
 task ktest(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     main = "junit.textui.TestRunner"
     args "kalah.test.TestKalah"
-}
-
-task krun(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    main = "kalah.Kalah"
-    args ""
 }

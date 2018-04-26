@@ -5,18 +5,20 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Java",
             "type": "java",
-            "request": "launch",
-            "stopOnEntry": true,
             "jdkPath": "${env:JAVA_HOME}/bin",
-            "cwd": "${workspaceFolder}",
             "startupClass": "kalah.Kalah",
+            "cwd": "${workspaceFolder}",
+            "name": "Debug (Attach)",
+            "request": "attach",
+            "externalConsole": true,
+            "remoteHost": "localhost",
+            "remotePort": 5005,
             "classpath": [
                 "${workspaceFolder}/junit-3.8.2.jar",
                 "${workspaceFolder}/kalah.jar",
                 "${workspaceFolder}/build/libs/jfan082_softeng701_a3.jar"
             ]
-        }
+        },
     ]
 }
