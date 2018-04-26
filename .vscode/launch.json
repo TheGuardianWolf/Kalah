@@ -1,0 +1,22 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Java",
+            "type": "java",
+            "request": "launch",
+            "stopOnEntry": true,
+            "jdkPath": "${env:JAVA_HOME}/bin",
+            "cwd": "${workspaceFolder}",
+            "startupClass": "kalah.Kalah",
+            "classpath": [
+                "${workspaceFolder}/junit-3.8.2.jar",
+                "${workspaceFolder}/kalah.jar",
+                "${workspaceFolder}/build/libs/jfan082_softeng701_a3.jar"
+            ]
+        }
+    ]
+}

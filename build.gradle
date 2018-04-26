@@ -7,24 +7,30 @@
 
 apply plugin: 'java'
 
-dependencies {
-   compile files('junit-3.8.2.jar', 'kalah.jar')
-}
+// dependencies {
+//     compileClassPath files('junit-3.8.2.jar', 'kalah.jar')
+// }
+
+def externalClasspath = files('junit-3.8.2.jar', 'kalah.jar')
 
 sourceSets {
     main {
         java {
-            srcDirs = ["src"]
+            srcDirs = ['src']
         }
+        compileClasspath += externalClasspath
+        runtimeClasspath += externalClasspath
     }
 }
 
-task ktest(type: Exec, dependsOn: 'jar') {
-    executable "java"
-    args "-cp", "junit-3.8.2.jar:kalah.jar:build/libs/jfan082_softeng701_a3.jar", "junit.textui.TestRunner", "kalah.test.TestKalah"
+task ktest(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = "junit.textui.TestRunner"
+    args "kalah.test.TestKalah"
 }
 
-// task krun(type: Exec, dependsOn: 'jar') {
-//     executable "java"
-//     args "-cp", "junit-3.8.2.jar:kalah.jar:build/libs/jfan082_softeng701_a3.jar", "kalah.Kalah.class"
-// }
+task krun(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = "kalah.Kalah"
+    args ""
+}
