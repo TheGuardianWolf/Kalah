@@ -1,12 +1,13 @@
 package kalah;
 
-import java.security.InvalidParameterException;
-import java.util.ArrayList;
-
 import com.qualitascorpus.testsupport.IO;
 import com.qualitascorpus.testsupport.MockIO;
 
-import kalah.components.Game;
+import kalah.display.GamePrinter;
+import kalah.display.SEKalahGamePrinter;
+import kalah.game.Game;
+import kalah.game.SEKalahGame;
+import kalah.game.TurnResult;
 
 /**
  * This class is the starting point for a Kalah implementation using
@@ -26,43 +27,35 @@ public class Kalah {
 	}
 
 	public void play(IO io) {
-		Game game = new Game(2, 6, 4);
+		Game game = new SEKalahGame();
+		GamePrinter gamePrinter = new SEKalahGamePrinter(io, (SEKalahGame)game, 'q');
 
 		while (true) {
-			String boardString = game.boardString();
+            gamePrinter.printGame();
 
-			printLines(io, boardString);
+            String userInput;
 
-			if (!game.hasTurn(game.getPlayerTurn())) {
-                io.println("Game over");
-                printLines(io, boardString);
-                printLines(io, game.scoreString());
-                int winner = game.getHighestScorePlayer();
-                if (winner == -1) {
-                    io.println("A tie!");
-                }
-                else {
-                    io.println(String.format("Player %d wins!", winner + 1));
-                }
+            if (!game.isGameOver()) {
+                userInput = gamePrinter.printPlayerPrompt();
+            }
+            else {
+                gamePrinter.printGameOver();
+                gamePrinter.printGame();
+                gamePrinter.printScores();
+                gamePrinter.printWinner();
                 break;
             }
 
-			String userInput = io.readFromKeyboard(String.format("Player P%d's turn - Specify house number or 'q' to quit: ", game.getPlayerTurn() + 1));
-
 			if (userInput.equals("q")) {
-				io.println("Game over");
-				printLines(io, boardString);
-				break;
-			}
+                gamePrinter.printGameOver();
+                gamePrinter.printGame();
+                break;
+            }
 
-			try {
-				game.takeTurn(userInput);
-			} catch (InvalidParameterException e) {
-				io.println("House is empty. Move again.");
-			} catch (NumberFormatException e) {
-				io.println("Not a valid house");
-			} catch (RuntimeException e) {
-			    io.println("Game over");
+			TurnResult result = game.takeTurn(game.parseInput(userInput));
+
+            if (result == TurnResult.INVALID_MOVE) {
+                gamePrinter.printInvalidMove();
             }
 		}
 	}

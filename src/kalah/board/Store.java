@@ -1,4 +1,4 @@
-package kalah.components;
+package kalah.board;
 
 public class Store extends Pit {
     public Store() {

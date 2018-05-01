@@ -1,17 +1,11 @@
-package kalah.components;
+package kalah.board;
 
 public class Pit {
-    protected int seeds;
-    protected int owner;
+    private int seeds;
 
     Pit(int seeds/*, int owner*/) {
         this.seeds = seeds;
-        // this.owner = owner;
     }
-
-//    public int getOwner() {
-//        return owner;
-//    }
 
     public int getSeeds() {
         return seeds;
@@ -28,7 +22,9 @@ public class Pit {
     }
 
     public int removeSeed() {
-        this.seeds--;
+        if (this.seeds > 0) {
+            this.seeds--;
+        }
         return this.seeds;
     }
 
@@ -38,6 +34,6 @@ public class Pit {
 
     @Override
     public String toString() {
-        return String.format("%2d", seeds);
+        return String.format("%d", seeds);
     }
 }
