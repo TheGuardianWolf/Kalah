@@ -1,7 +1,5 @@
 package kalah.game;
 
-import kalah.game.IGame;
-
 public interface PrintableGame extends IGame {
     void printGame();
 
