@@ -9,6 +9,8 @@ public interface Game {
 
     boolean isGameOver();
 
+    void nextPlayer();
+
     TurnResult takeTurn(int userInput);
 
     int getPlayerTurn();

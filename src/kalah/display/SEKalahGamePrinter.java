@@ -22,20 +22,18 @@ public class SEKalahGamePrinter implements GamePrinter {
     public void printGame() {
         io.println("+----+-------+-------+-------+-------+-------+-------+----+");
 
-        List<House> playerTwoHouses = game.getBoard().getPlayerHouses(1);
         StringBuilder s1 = new StringBuilder("| P2 |");
-        for (int i = playerTwoHouses.size() - 1; i >= 0; i--) {
-            s1.append(String.format(" %d[%2d] |", i + 1, playerTwoHouses.get(i).getSeeds()));
+        for (int i = game.getBoard().getNumberOfHouses(1) - 1; i >= 0; i--) {
+            s1.append(String.format(" %d[%2d] |", i + 1, game.getBoard().getSeedsInHouse(1, i)));
         }
-        s1.append(String.format(" %2d |", game.getBoard().getPlayerStore(0).getSeeds()));
+        s1.append(String.format(" %2d |", game.getBoard().getSeedsInStore(0)));
         io.println(s1.toString());
 
         io.println("|    |-------+-------+-------+-------+-------+-------|    |");
 
-        List<House> playerOneHouses = game.getBoard().getPlayerHouses(0);
-        StringBuilder s2 = new StringBuilder(String.format("| %2d |", game.getBoard().getPlayerStore(1).getSeeds()));
-        for (int i = 0; i < playerOneHouses.size(); i++) {
-            s2.append(String.format(" %d[%2d] |", i + 1, playerOneHouses.get(i).getSeeds()));
+        StringBuilder s2 = new StringBuilder(String.format("| %2d |", game.getBoard().getSeedsInStore(1)));
+        for (int i = 0; i < game.getBoard().getNumberOfHouses(0); i++) {
+            s2.append(String.format(" %d[%2d] |", i + 1, game.getBoard().getSeedsInHouse(0, i)));
         }
         s2.append(" P1 |");
         io.println(s2.toString());

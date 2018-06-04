@@ -7,7 +7,6 @@
 
 apply plugin: 'application'
 apply plugin: 'java'
-apply from: 'be.jlr-home.gradle:plantumlPlugin:0.1.+'
 
 repositories {
     mavenCentral()
@@ -29,6 +28,11 @@ sourceSets {
             srcDirs = ['src']
         }
     }
+    test {
+        java {
+            srcDirs = ['test']
+        }
+    }
 }
 
 mainClassName = "kalah.Kalah"
@@ -37,4 +41,10 @@ task ktest(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     main = "junit.textui.TestRunner"
     args "kalah.test.TestKalah"
+}
+
+task generateUML(type: JavaExec) {
+    classpath = files('plantuml-dependency-cli-1.4.0-jar-with-dependencies.jar')
+    main = "net.sourceforge.plantumldependency.cli.main.program.PlantUMLDependencyProgram"
+    args "-o", "build/uml.txt", "-b", "src/kalah", "-i", "**/*.java"
 }

@@ -11,7 +11,7 @@ public class Circular2DArrayList<E> extends ArrayList<List<E>> {
         return count;
     }
 
-    public int ToCircularIndex(int i, int j) {
+    public int toCircularIndex(int i, int j) {
         int circularIndex = 0;
 
         for (int k = 0; k < i; k++) {
@@ -21,7 +21,7 @@ public class Circular2DArrayList<E> extends ArrayList<List<E>> {
         return circularIndex + j;
     }
 
-    public int To2DIndex(int circularIndex) {
+    public int toFlatIndex(int circularIndex) {
         int index = circularIndex % circularSize();
 
         int retVal = 0;
@@ -38,7 +38,8 @@ public class Circular2DArrayList<E> extends ArrayList<List<E>> {
         throw new IndexOutOfBoundsException();
     }
 
-    public int circularIndex(E item) {
+    @Override
+    public int indexOf(Object item) {
         int i = 0;
 
         for (List<E> ls : this) {

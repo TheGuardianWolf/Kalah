@@ -1,13 +1,8 @@
 package kalah.game;
 
-import kalah.board.House;
 import kalah.board.KalahBoard;
-import kalah.board.Pit;
-import kalah.board.Store;
 
-import java.util.ArrayList;
-import java.util.InputMismatchException;
-import java.util.List;
+import java.util.*;
 
 public class KalahGame implements Game {
     private int playerTurn = 0;
@@ -28,7 +23,7 @@ public class KalahGame implements Game {
     public int parseInput(String input) {
         int retVal =  Integer.parseInt(input) - 1;
 
-        if (retVal < 0 || retVal >= board.getPlayerHouses(playerTurn).size()) {
+        if (retVal < 0 || retVal >= board.getNumberOfHouses(playerTurn)) {
             throw new InputMismatchException("This is not a valid player house");
         }
 
@@ -48,15 +43,59 @@ public class KalahGame implements Game {
     @Override
     public TurnResult takeTurn(int userInput) {
         if (!isGameOver()) {
-            SowResult sowResult = sow(userInput);
+            int houseNumber = userInput;
 
-            if (sowResult == SowResult.NEXT_TURN) {
-                nextPlayer();
+            int seedsToSow = board.getSeedsInHouse(playerTurn, houseNumber);
+
+            if (seedsToSow == 0) {
+                return TurnResult.INVALID_MOVE;
             }
 
-            return TurnResult.values()[sowResult.ordinal()];
+            SowState sowState = new SowState(
+                    playerTurn,
+                    houseNumber + 1,
+                    board.getSeedsInHouseOpposite(playerTurn, houseNumber + 1),
+                    board.getSeedsInHouse(playerTurn, houseNumber + 1),
+                    seedsToSow
+            );
+
+            SowIterator sowIterator = new SowIterator(sowState);
+
+            if (board.getSeedsInHouse(0, 5) == 13) {
+                int a = 1;
+            }
+
+            while (sowIterator.hasNext()) {
+                board.takeSeedsInHouse(playerTurn, houseNumber, 1);
+
+                sowState = sowIterator.next();
+
+                TurnResult turnResult = resolveTurnState(sowState);
+
+                if (turnResult != TurnResult.NEXT_TURN) {
+                    return turnResult;
+                }
+
+                if (sowIterator.hasNext() == false) {
+                    break;
+                }
+            }
+
+            return TurnResult.NEXT_TURN;
         }
         return TurnResult.GAME_OVER;
+    }
+
+    public TurnResult resolveTurnState(SowState sowState) {
+        if (captureCondition(sowState)) {
+            capture(sowState.sowingHouseOwner, sowState.sowingHouseNumber);
+            return TurnResult.NEXT_TURN;
+        }
+
+        if (extraTurnCondition(sowState)) {
+            return TurnResult.EXTRA_TURN;
+        }
+        return TurnResult.NEXT_TURN;
     }
 
     @Override
@@ -70,10 +109,10 @@ public class KalahGame implements Game {
 
         for (int i = 0; i < numberOfPlayers; i++) {
             Integer score = 0;
-            for (Pit pit : board.getPlayerHouses(i)) {
-                score += pit.getSeeds();
+            for (int j = 0; j < board.getNumberOfHouses(i); j++) {
+                score += board.getSeedsInHouse(i, j);
             }
-            score += board.getPlayerStore(i).getSeeds();
+            score += board.getSeedsInStore(i);
             scores.add(score);
         }
 
@@ -85,80 +124,112 @@ public class KalahGame implements Game {
     }
 
     private boolean playerHasSeeds() {
-        for (House house : board.getPlayerHouses(playerTurn)) {
-            if (house.getSeeds() > 0) {
+        for (int i = 0; i < board.getNumberOfHouses(playerTurn); i++) {
+            if (board.getSeedsInHouse(playerTurn, i) > 0) {
                 return true;
             }
         }
         return false;
     }
 
-    private void nextPlayer() {
+    @Override
+    public void nextPlayer() {
         playerTurn = (playerTurn + 1) % numberOfPlayers;
     }
 
-    private SowResult sow(int houseNumber) {
-        int seedsToSow = board.getPlayerHouses(playerTurn).get(houseNumber).getSeeds();
+    private boolean extraTurnCondition(SowState state) {
+        return state.seedsToSow == 0 && state.sowingHouseOwner == playerTurn && state.sowingHouseNumber == -1;
+    }
 
-        if (seedsToSow == 0) {
-            return SowResult.EMPTY_HOUSE;
+    private boolean sowingStoreCondition(SowState state) {
+        return state.sowingHouseOwner == playerTurn;
+    }
+
+    private boolean captureCondition(SowState state) {
+        return state.seedsToSow == 0 && state.sowingHouseOwner == playerTurn && state.seedsInHouse == 1 && state.seedsInOpposite > 0;
+    }
+
+    private void capture(int player, int houseNumber) {
+        board.placeSeedsInStore(
+                playerTurn,
+                board.takeSeedsInHouseOpposite(player, houseNumber) + board.takeSeedsInHouse(player, houseNumber)
+        );
+    }
+
+    private class SowIterator implements Iterator<SowState> {
+        SowState state;
+
+        SowIterator(SowState state) {
+            this.state = state;
         }
 
-        board.getPlayerHouses(playerTurn).get(houseNumber).clearSeeds();
+        private void sowHouse() {
+            state.seedsInHouse = board.placeSeedsInHouse(state.sowingHouseOwner, state.sowingHouseNumber, 1);
+            state.seedsInOpposite = board.getSeedsInHouseOpposite(state.sowingHouseOwner, state.sowingHouseNumber);
+            state.seedsToSow--;
+        }
 
-        int sowingNumber = board.getHouseNumber(playerTurn, houseNumber + 1);
-        int lastSownHouseOwner = playerTurn;
+        private void sowStore() {
+            state.seedsInHouse = board.placeSeedsInStore(state.sowingHouseOwner, 1);
+            state.seedsInOpposite = -1;
+            state.seedsToSow--;
+        }
 
-        while (seedsToSow > 0) {
-            House sowingHouse = board.getHouse(sowingNumber);
-            int sowingHouseOwner = board.getHouseOwner(sowingNumber);
+        private void nextPlayer() {
+            state.sowingHouseOwner = (state.sowingHouseOwner + 1) % numberOfPlayers;
+            state.sowingHouseNumber = 0;
+        }
 
-            if (sowingStoreCondition(lastSownHouseOwner, sowingHouseOwner)) {
-                board.getPlayerStore(lastSownHouseOwner).addSeed();
-                if (seedsToSow == 1) {
-                    return SowResult.EXTRA_TURN;
+        @Override
+        public SowState next() {
+            SowState sowState;
+
+            if (state.sowingHouseNumber >= board.getNumberOfHouses(state.sowingHouseOwner)) {
+                if (sowingStoreCondition(state)) {
+                    sowStore();
+                    sowState = new SowState(state);
+                    sowState.sowingHouseNumber = -1;
+                    nextPlayer();
+                    return sowState;
+                } else {
+                    nextPlayer();
                 }
             }
-            else {
-                if (seedsToSow == 1 && captureCondition(sowingHouseOwner, sowingHouse)) {
-                    if (capture(sowingNumber)) {
-                        return SowResult.NEXT_TURN;
-                    }
-                }
-                sowingHouse.addSeed();
-                sowingNumber++;
-            }
 
-            lastSownHouseOwner = sowingHouseOwner;
-            seedsToSow--;
+            sowHouse();
+            sowState = new SowState(state);
+            state.sowingHouseNumber++;
+
+            return sowState;
         }
 
-        return SowResult.NEXT_TURN;
-    }
-
-    private boolean sowingStoreCondition(int lastSownHouseOwner, int sowingHouseOwner) {
-        return lastSownHouseOwner != sowingHouseOwner && lastSownHouseOwner == playerTurn;
-    }
-
-    private boolean captureCondition(int sowingHouseOwner, House sowingHouse) {
-        return sowingHouseOwner == playerTurn && sowingHouse.getSeeds() == 0;
-    }
-
-    private boolean capture(int sowingNumber) {
-        House opponentHouse = board.getHouseOpposite(sowingNumber);
-        if (opponentHouse.getSeeds() > 0) {
-            Store playerStore = board.getPlayerStore(playerTurn);
-            playerStore.addSeed();
-            playerStore.addSeeds(opponentHouse.getSeeds());
-            opponentHouse.clearSeeds();
-            return true;
+        @Override
+        public boolean hasNext() {
+            return state.seedsToSow > 0;
         }
-        return false;
     }
 
-    private enum SowResult {
-        EMPTY_HOUSE,
-        NEXT_TURN,
-        EXTRA_TURN
+    private class SowState {
+        int sowingHouseOwner;
+        int sowingHouseNumber;
+        int seedsInOpposite;
+        int seedsInHouse;
+        int seedsToSow;
+
+        SowState(int sowingHouseOwner, int sowingHouseNumber, int seedsInOpposite, int seedsInHouse, int seedsToSow) {
+            this.sowingHouseOwner = sowingHouseOwner;
+            this.sowingHouseNumber = sowingHouseNumber;
+            this.seedsInOpposite = seedsInOpposite;
+            this.seedsInHouse = seedsInHouse;
+            this.seedsToSow = seedsToSow;
+        }
+
+        SowState(SowState other) {
+            sowingHouseOwner = other.sowingHouseOwner;
+            sowingHouseNumber = other.sowingHouseNumber;
+            seedsInOpposite = other.seedsInOpposite;
+            seedsInHouse = other.seedsInHouse;
+            seedsToSow = other.seedsToSow;
+        }
     }
 }

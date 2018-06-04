@@ -54,6 +54,10 @@ public class Kalah {
 
 			TurnResult result = game.takeTurn(game.parseInput(userInput));
 
+            if (result == TurnResult.NEXT_TURN) {
+                game.nextPlayer();
+            }
+
             if (result == TurnResult.INVALID_MOVE) {
                 gamePrinter.printInvalidMove();
             }

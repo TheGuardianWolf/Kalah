@@ -1,9 +1,11 @@
 package kalah.board;
 
-public class Pit {
+import java.security.InvalidParameterException;
+
+public abstract class Pit {
     private int seeds;
 
-    Pit(int seeds/*, int owner*/) {
+    protected Pit(int seeds) {
         this.seeds = seeds;
     }
 
@@ -12,8 +14,7 @@ public class Pit {
     }
 
     public int addSeed() {
-        this.seeds++;
-        return this.seeds;
+        return addSeeds(1);
     }
 
     public int addSeeds(int seeds) {
@@ -21,15 +22,21 @@ public class Pit {
         return this.seeds;
     }
 
-    public int removeSeed() {
-        if (this.seeds > 0) {
-            this.seeds--;
-        }
-        return this.seeds;
+    public int takeSeeds() {
+        int originalSeeds = seeds;
+        seeds = 0;
+        return originalSeeds;
     }
 
-    public void clearSeeds() {
-        seeds = 0;
+    public int takeSeeds(int seeds) {
+        if (this.seeds - seeds >= 0) {
+            this.seeds -= seeds;
+        }
+        else {
+            throw new InvalidParameterException();
+        }
+
+        return seeds;
     }
 
     @Override

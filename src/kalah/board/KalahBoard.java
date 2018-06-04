@@ -7,19 +7,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class KalahBoard {
-    private int supportedPlayers;
-    private Circular2DArrayList<House> houses = new Circular2DArrayList<House>();
-    private ArrayList<Store> stores = new ArrayList<Store>();
+    private Circular2DArrayList<Pit> houses = new Circular2DArrayList<>();
+    private ArrayList<Pit> stores = new ArrayList<>();
 
     public KalahBoard(int players, int startingHouses, int startingSeeds) {
         if (startingHouses == 0) {
             throw new InvalidParameterException("Need more than one house per player");
         }
 
-        supportedPlayers = players;
-
         for (int i = 0; i < players; i++) {
-            ArrayList<House> playerHouses = new ArrayList<House>();
+            ArrayList<Pit> playerHouses = new ArrayList<>();
 
             for (int j = 0; j < startingHouses; j++) {
                 playerHouses.add(new House(startingSeeds));
@@ -32,31 +29,45 @@ public class KalahBoard {
         }
     }
 
-    public int getHouseOwner(int circularIndex) {
-        return houses.To2DIndex(circularIndex);
+    public int getNumberOfHouses(int player) {
+        return houses.get(player).size();
     }
 
-    public int getHouseNumber(int player, int index) {
-        return houses.ToCircularIndex(player, index);
+
+    public int getSeedsInHouse(int player, int houseNumber) {
+        return houses.circularGet(houses.toCircularIndex(player, houseNumber)).getSeeds();
     }
 
-    public House getHouse(int houseNumber) {
-        return houses.circularGet(houseNumber);
+    public int takeSeedsInHouse(int player, int houseNumber) {
+        return houses.circularGet(houses.toCircularIndex(player, houseNumber)).takeSeeds();
     }
 
-    public House getHouseOpposite(int houseNumber) {
-        return houses.circularGetOpposite(houseNumber);
+    public int takeSeedsInHouse(int player, int houseNumber, int seeds) {
+        return houses.circularGet(houses.toCircularIndex(player, houseNumber)).takeSeeds(seeds);
     }
 
-    public House getHouseNextOpponent(int player, int houseNumber) {
-        return houses.get((player + 1) % supportedPlayers).get(houseNumber);
+    public int placeSeedsInHouse(int player, int houseNumber, int seeds) {
+        return houses.circularGet(houses.toCircularIndex(player, houseNumber)).addSeeds(seeds);
     }
 
-    public Store getPlayerStore(int player) {
-        return stores.get(player);
+    public int getSeedsInHouseOpposite(int player, int houseNumber) {
+        return houses.circularGetOpposite(houses.toCircularIndex(player, houseNumber)).getSeeds();
     }
 
-    public List<House> getPlayerHouses(int player) {
-        return houses.get(player);
+    public int takeSeedsInHouseOpposite(int player, int houseNumber) {
+        return houses.circularGetOpposite(houses.toCircularIndex(player, houseNumber)).takeSeeds();
+    }
+
+    public int takeSeedsInHouseOpposite(int player, int houseNumber, int seeds) {
+        return houses.circularGetOpposite(houses.toCircularIndex(player, houseNumber)).takeSeeds(seeds);
+    }
+
+    public int getSeedsInStore(int player) {
+        return stores.get(player).getSeeds();
+    }
+
+    public int placeSeedsInStore(int player, int seeds) {
+        return stores.get(player).addSeeds(seeds);
     }
 }
+
