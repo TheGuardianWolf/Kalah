@@ -2,10 +2,11 @@ package kalah;
 
 import com.qualitascorpus.testsupport.IO;
 import com.qualitascorpus.testsupport.MockIO;
-
-import kalah.game.PrintableGame;
+import kalah.display.ConsoleGame;
+import kalah.display.DisplayMockIO;
+import kalah.display.KalahGamePrinter;
+import kalah.game.KalahGame;
 import kalah.game.SEKalahGame;
-import kalah.game.TurnResult;
 
 /**
  * This class is the starting point for a Kalah implementation using
@@ -16,49 +17,9 @@ public class Kalah {
 		new Kalah().play(new MockIO());
 	}
 
-	private void printLines(IO io, String s) {
-		String[] lines = s.split(String.format("%n"));
-
-		for (String line : lines) {
-			io.println(line);
-		}
-	}
-
 	public void play(IO io) {
-		PrintableGame game = new SEKalahGame(io, 'q');
-		game.newGame();
-
-		while (true) {
-            game.printGame();
-
-            String userInput;
-
-            if (!game.isGameOver()) {
-                userInput = game.printPlayerPrompt();
-            }
-            else {
-                game.printGameOver();
-                game.printGame();
-                game.printScores();
-                game.printWinner();
-                break;
-            }
-
-			if (userInput.equals("q")) {
-                game.printGameOver();
-                game.printGame();
-                break;
-            }
-
-			TurnResult result = game.takeTurn(game.parseInput(userInput));
-
-            if (result == TurnResult.NEXT_TURN) {
-                game.nextPlayer();
-            }
-
-            if (result == TurnResult.INVALID_MOVE) {
-                game.printInvalidMove();
-            }
-		}
+	    KalahGame game = new SEKalahGame();
+        DisplayMockIO displayIO = new DisplayMockIO(io);
+        new ConsoleGame(new KalahGamePrinter(displayIO, displayIO, game, 'q'), game).runGame();
 	}
 }
