@@ -2,7 +2,7 @@ package kalah;
 
 import com.qualitascorpus.testsupport.IO;
 import com.qualitascorpus.testsupport.MockIO;
-import kalah.display.ConsoleGame;
+import kalah.display.SEConsoleGame;
 import kalah.display.DisplayMockIO;
 import kalah.display.KalahGamePrinter;
 import kalah.game.KalahGame;
@@ -20,6 +20,6 @@ public class Kalah {
 	public void play(IO io) {
 	    KalahGame game = new SEKalahGame();
         DisplayMockIO displayIO = new DisplayMockIO(io);
-        new ConsoleGame(new KalahGamePrinter(displayIO, displayIO, game, 'q'), game).runGame();
+        new SEConsoleGame(new KalahGamePrinter(displayIO, displayIO, game, 'q'), game).runGame();
 	}
 }

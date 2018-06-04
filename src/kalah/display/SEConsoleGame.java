@@ -3,11 +3,11 @@ package kalah.display;
 import kalah.game.IGame;
 import kalah.game.TurnResult;
 
-public class ConsoleGame {
+public class SEConsoleGame {
     IGamePrinter printer;
     IGame game;
 
-    public ConsoleGame(IGamePrinter printer, IGame game) {
+    public SEConsoleGame(IGamePrinter printer, IGame game) {
         this.printer = printer;
         this.game = game;
     }
