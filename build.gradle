@@ -6,6 +6,8 @@
  */
 
 apply plugin: 'application'
+apply plugin: 'java'
+apply from: 'be.jlr-home.gradle:plantumlPlugin:0.1.+'
 
 repositories {
     mavenCentral()
