@@ -4,146 +4,31 @@ import kalah.board.KalahBoard;
 
 import java.util.*;
 
-public class KalahGame implements Game {
-    private int playerTurn = 0;
-    private int numberOfPlayers;
+public abstract class KalahGame extends Game<SowState> {
     private int startingHouses;
     private int startingSeeds;
     private KalahBoard board;
 
     public KalahGame(int numberOfPlayers, int startingHouses, int startingSeeds) {
-        this.numberOfPlayers = numberOfPlayers;
+        super(numberOfPlayers);
         this.startingHouses = startingHouses;
         this.startingSeeds = startingSeeds;
-
-        newGame();
     }
 
-    @Override
-    public int parseInput(String input) {
-        int retVal =  Integer.parseInt(input) - 1;
+    protected abstract boolean sowingStoreCondition(SowState state);
 
-        if (retVal < 0 || retVal >= board.getNumberOfHouses(playerTurn)) {
-            throw new InputMismatchException("This is not a valid player house");
-        }
-
-        return retVal;
-    }
-
-    @Override
-    public void newGame() {
-        board = new KalahBoard(numberOfPlayers, startingHouses, startingSeeds);
-    }
-
-    @Override
-    public boolean isGameOver() {
-        return !playerHasSeeds();
-    }
-
-    @Override
-    public TurnResult takeTurn(int userInput) {
-        if (!isGameOver()) {
-            int houseNumber = userInput;
-
-            int seedsToSow = board.getSeedsInHouse(playerTurn, houseNumber);
-
-            if (seedsToSow == 0) {
-                return TurnResult.INVALID_MOVE;
-            }
-
-            SowState sowState = new SowState(
-                    playerTurn,
-                    houseNumber + 1,
-                    board.getSeedsInHouseOpposite(playerTurn, houseNumber + 1),
-                    board.getSeedsInHouse(playerTurn, houseNumber + 1),
-                    seedsToSow
-            );
-
-            SowIterator sowIterator = new SowIterator(sowState);
-
-            while (sowIterator.hasNext()) {
-                board.takeSeedsInHouse(playerTurn, houseNumber, 1);
-
-                sowState = sowIterator.next();
-
-                TurnResult turnResult = resolveTurnState(sowState);
-
-                if (turnResult != TurnResult.NEXT_TURN) {
-                    return turnResult;
-                }
-            }
-
-            return TurnResult.NEXT_TURN;
-        }
-        return TurnResult.GAME_OVER;
-    }
-
-    public TurnResult resolveTurnState(SowState sowState) {
-        if (captureCondition(sowState)) {
-            capture(sowState.sowingHouseOwner, sowState.sowingHouseNumber);
-            return TurnResult.NEXT_TURN;
-        }
-
-        if (extraTurnCondition(sowState)) {
-            return TurnResult.EXTRA_TURN;
-        }
-        return TurnResult.NEXT_TURN;
-    }
-
-    @Override
-    public int getPlayerTurn() {
-        return playerTurn;
-    }
-
-    @Override
-    public List<Integer> getScores() {
-        ArrayList<Integer> scores = new ArrayList<Integer>();
-
-        for (int i = 0; i < numberOfPlayers; i++) {
-            Integer score = 0;
-            for (int j = 0; j < board.getNumberOfHouses(i); j++) {
-                score += board.getSeedsInHouse(i, j);
-            }
-            score += board.getSeedsInStore(i);
-            scores.add(score);
-        }
-
-        return scores;
-    }
-
-    public KalahBoard getBoard() {
-        return board;
-    }
-
-    private boolean playerHasSeeds() {
-        for (int i = 0; i < board.getNumberOfHouses(playerTurn); i++) {
-            if (board.getSeedsInHouse(playerTurn, i) > 0) {
+    protected boolean playerHasSeeds() {
+        for (int i = 0; i < board.getNumberOfHouses(getPlayerTurn()); i++) {
+            if (board.getSeedsInHouse(getPlayerTurn(), i) > 0) {
                 return true;
             }
         }
         return false;
     }
 
-    @Override
-    public void nextPlayer() {
-        playerTurn = (playerTurn + 1) % numberOfPlayers;
-    }
-
-    private boolean extraTurnCondition(SowState state) {
-        return state.seedsToSow == 0 && state.sowingHouseOwner == playerTurn && state.sowingHouseNumber == -1;
-    }
-
-    private boolean sowingStoreCondition(SowState state) {
-        return state.sowingHouseOwner == playerTurn;
-    }
-
-    private boolean captureCondition(SowState state) {
-        return state.seedsToSow == 0 && state.sowingHouseOwner == playerTurn && state.seedsInHouse == 1 && state.seedsInOpposite > 0;
-    }
-
-    private void capture(int player, int houseNumber) {
+    protected void capture(int player, int houseNumber) {
         board.placeSeedsInStore(
-                playerTurn,
+                getPlayerTurn(),
                 board.takeSeedsInHouseOpposite(player, houseNumber) + board.takeSeedsInHouse(player, houseNumber)
         );
     }
@@ -168,7 +53,7 @@ public class KalahGame implements Game {
         }
 
         private void nextPlayer() {
-            state.sowingHouseOwner = (state.sowingHouseOwner + 1) % numberOfPlayers;
+            state.sowingHouseOwner = (state.sowingHouseOwner + 1) % getNumberOfPlayers();
             state.sowingHouseNumber = 0;
         }
 
@@ -201,27 +86,70 @@ public class KalahGame implements Game {
         }
     }
 
-    private class SowState {
-        int sowingHouseOwner;
-        int sowingHouseNumber;
-        int seedsInOpposite;
-        int seedsInHouse;
-        int seedsToSow;
+    @Override
+    protected void beforeTurnIteratorNext(int userInput) {
+        board.takeSeedsInHouse(getPlayerTurn(), userInput, 1);
+    }
 
-        SowState(int sowingHouseOwner, int sowingHouseNumber, int seedsInOpposite, int seedsInHouse, int seedsToSow) {
-            this.sowingHouseOwner = sowingHouseOwner;
-            this.sowingHouseNumber = sowingHouseNumber;
-            this.seedsInOpposite = seedsInOpposite;
-            this.seedsInHouse = seedsInHouse;
-            this.seedsToSow = seedsToSow;
+    @Override
+    protected boolean validateInput(int input) {
+        return input < 0 || input >= board.getNumberOfHouses(getPlayerTurn());
+    }
+
+    @Override
+    protected Iterator<SowState> createIterator(SowState state) {
+        return new SowIterator(new SowState(state));
+    }
+
+    @Override
+    protected SowState initialiseState(int turnInput) {
+        return new SowState(
+                getPlayerTurn(),
+                turnInput + 1,
+                board.getSeedsInHouseOpposite(getPlayerTurn(), turnInput + 1),
+                board.getSeedsInHouse(getPlayerTurn(), turnInput + 1),
+                board.getSeedsInHouse(getPlayerTurn(), turnInput)
+        );
+    }
+
+    @Override
+    protected boolean isValidMove(int userInput) {
+        return board.getSeedsInHouse(getPlayerTurn(), userInput) > 0;
+    }
+
+    @Override
+    public int parseInput(String input) {
+        int retVal =  Integer.parseInt(input) - 1;
+
+        if (retVal < 0 || retVal >= board.getNumberOfHouses(getPlayerTurn())) {
+            throw new InputMismatchException("This is not a valid player house");
         }
 
-        SowState(SowState other) {
-            sowingHouseOwner = other.sowingHouseOwner;
-            sowingHouseNumber = other.sowingHouseNumber;
-            seedsInOpposite = other.seedsInOpposite;
-            seedsInHouse = other.seedsInHouse;
-            seedsToSow = other.seedsToSow;
+        return retVal;
+    }
+
+    @Override
+    public void newGame() {
+        board = new KalahBoard(getNumberOfPlayers(), startingHouses, startingSeeds);
+    }
+
+    @Override
+    protected int getScore(int player) {
+        int score = 0;
+        for (int i = 0; i < board.getNumberOfHouses(player); i++) {
+            score += board.getSeedsInHouse(player, i);
         }
+        score += board.getSeedsInStore(player);
+
+        return score;
+    }
+
+    public KalahBoard getBoard() {
+        return board;
+    }
+
+    @Override
+    public boolean isGameOver() {
+        return !playerHasSeeds();
     }
 }

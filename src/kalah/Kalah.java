@@ -3,9 +3,7 @@ package kalah;
 import com.qualitascorpus.testsupport.IO;
 import com.qualitascorpus.testsupport.MockIO;
 
-import kalah.display.GamePrinter;
-import kalah.display.SEKalahGamePrinter;
-import kalah.game.Game;
+import kalah.game.PrintableGame;
 import kalah.game.SEKalahGame;
 import kalah.game.TurnResult;
 
@@ -27,28 +25,28 @@ public class Kalah {
 	}
 
 	public void play(IO io) {
-		Game game = new SEKalahGame();
-		GamePrinter gamePrinter = new SEKalahGamePrinter(io, (SEKalahGame)game, 'q');
+		PrintableGame game = new SEKalahGame(io, 'q');
+		game.newGame();
 
 		while (true) {
-            gamePrinter.printGame();
+            game.printGame();
 
             String userInput;
 
             if (!game.isGameOver()) {
-                userInput = gamePrinter.printPlayerPrompt();
+                userInput = game.printPlayerPrompt();
             }
             else {
-                gamePrinter.printGameOver();
-                gamePrinter.printGame();
-                gamePrinter.printScores();
-                gamePrinter.printWinner();
+                game.printGameOver();
+                game.printGame();
+                game.printScores();
+                game.printWinner();
                 break;
             }
 
 			if (userInput.equals("q")) {
-                gamePrinter.printGameOver();
-                gamePrinter.printGame();
+                game.printGameOver();
+                game.printGame();
                 break;
             }
 
@@ -59,7 +57,7 @@ public class Kalah {
             }
 
             if (result == TurnResult.INVALID_MOVE) {
-                gamePrinter.printInvalidMove();
+                game.printInvalidMove();
             }
 		}
 	}

@@ -1,6 +1,8 @@
-package kalah.display;
+package kalah.game;
 
-public interface GamePrinter {
+import kalah.game.IGame;
+
+public interface PrintableGame extends IGame {
     void printGame();
 
     String printPlayerPrompt();
