@@ -61,10 +61,6 @@ public class KalahGame implements Game {
 
             SowIterator sowIterator = new SowIterator(sowState);
 
-            if (board.getSeedsInHouse(0, 5) == 13) {
-                int a = 1;
-            }
-
             while (sowIterator.hasNext()) {
                 board.takeSeedsInHouse(playerTurn, houseNumber, 1);
 
@@ -74,10 +70,6 @@ public class KalahGame implements Game {
 
                 if (turnResult != TurnResult.NEXT_TURN) {
                     return turnResult;
-                }
-
-                if (sowIterator.hasNext() == false) {
-                    break;
                 }
             }
 
